@@ -1,9 +1,11 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { Cell } from './Cell'
 import { GameBoard } from './GameBoard/GameBoard'
-import { cell } from './GameBoard/TypeCell'
+import { TypeCell, cell } from './GameBoard/TypeCell'
 import { Subscription, fromEvent } from 'rxjs'
+import { CellWhite } from './CellComponets/CellWhite'
+import { CellBlocked } from './CellComponets/CellBlocked'
+import { CellBlack } from './CellComponets/CellBlack'
 
 export const Board = ({r, c}: any) => {
 
@@ -63,7 +65,24 @@ export const Board = ({r, c}: any) => {
         <h1 className="text-6xl m-5 font-sans ">Kakuro</h1>
         <p>By David Sequera</p>
         <div className={`grid`} style={gridStyles}>
-          {table?.flatMap((_, i) => (table[i].map((_, j) => <Cell selected={ selectedCell?.i == i &&  selectedCell?.j == j } pickCell={pickCell} key={`${i}-${j}`} id={`${i}-${j}`} cell={game?.getCell(i,j)} />)))}
+          {table?.flatMap((row, i) =>
+             (row.map((_, j) =>
+                  {
+                    const cell = game!.getCell(i,j)
+                    if(cell.type === TypeCell.WHITE){
+                      return <CellWhite key={`${i}-${j} `} selected={ selectedCell?.i == i &&  selectedCell?.j == j } pickCell={pickCell}  cell={cell}/>
+                    }
+                    if(cell.type === TypeCell.BLOCKED){
+                      return <CellBlocked key={`${i}-${j}`} />
+                    }                    
+                    if(cell.type === TypeCell.BLACK){
+                      return <CellBlack key={`${i}-${j}`} cell={cell} />
+                    }                   
+                  }
+                )
+              )
+            )
+          }
       </div>
     </div>
   )
