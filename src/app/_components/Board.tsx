@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react'
 import { GameBoard } from './GameBoard/GameBoard'
 import { TypeCell, cell } from './GameBoard/TypeCell'
 import { Subscription, fromEvent } from 'rxjs'
-import { CellWhite } from './CellComponets/CellWhite'
+import { CellInput } from './CellComponets/CellInput'
 import { CellBlocked } from './CellComponets/CellBlocked'
-import { CellBlack } from './CellComponets/CellBlack'
+import { CellStack } from './CellComponets/CellStack'
 
 export const Board = ({r, c}: any) => {
 
@@ -22,7 +22,7 @@ export const Board = ({r, c}: any) => {
   useEffect(() => {
     const subscription = listenKey()
     return () => {
-      console.log("unsubscribe")
+      // console.log("unsubscribe")
       subscription.unsubscribe()
     }
   }, [game, selectedCell])
@@ -40,14 +40,14 @@ export const Board = ({r, c}: any) => {
 
   function listenKey(): Subscription{
     const keydown = fromEvent(document, 'keydown')
-    console.log("listen", game, selectedCell)
+    // console.log("listen", game, selectedCell)
     return keydown.subscribe(handleKeyDown)
   }
 
   const handleKeyDown = (e: any ) => {
       const key = e.key as string
       const regex = RegExp('[0-9]')
-      console.log("key", key, selectedCell)
+      // console.log("key", key, selectedCell)
       if (game && selectedCell) {
         if (key === 'Backspace') {
           game.setCell(selectedCell.i, selectedCell.j, 0)
@@ -69,14 +69,14 @@ export const Board = ({r, c}: any) => {
              (row.map((_, j) =>
                   {
                     const cell = game!.getCell(i,j)
-                    if(cell.type === TypeCell.WHITE){
-                      return <CellWhite key={`${i}-${j} `} selected={ selectedCell?.i == i &&  selectedCell?.j == j } pickCell={pickCell}  cell={cell}/>
+                    if(cell.type === TypeCell.INPUT){
+                      return <CellInput key={`${i}-${j} `} selected={ selectedCell?.i == i &&  selectedCell?.j == j } pickCell={pickCell}  cell={cell}/>
                     }
                     if(cell.type === TypeCell.BLOCKED){
                       return <CellBlocked key={`${i}-${j}`} />
                     }                    
-                    if(cell.type === TypeCell.BLACK){
-                      return <CellBlack key={`${i}-${j}`} cell={cell} />
+                    if(cell.type === TypeCell.STACK){
+                      return <CellStack key={`${i}-${j}`} cell={cell} game={game} />
                     }                   
                   }
                 )
