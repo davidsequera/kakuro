@@ -13,7 +13,7 @@ export class GameBoard {
     }
 
     private _initBoard(r: number, c: number): void {
-        // Set the white cells
+        // Set the input cells
         for (let i = 0; i < r; i++) {
             this._board[i] = [];
             this._types[i] = [];
@@ -23,7 +23,7 @@ export class GameBoard {
                 this._types[i][j] = TypeCell.INPUT;
             }
         }
-        // Set the black cells
+        // Set the stack cells
         for (let i = 0; i < r; i++) {
             this._board[i][0] = [0, 0];
             this._types[i][0] = TypeCell.STACK;
@@ -38,7 +38,9 @@ export class GameBoard {
                 this._board[0][j][1] += this._board[i][j] as number;
             }
         }
+        // Set the blocked cells
         this._types[0][0] = TypeCell.BLOCKED;
+        // Save one copy of the solution
         this._solution = this._board.slice(0)
         // clean the board
         for (let i = 1; i < r; i++) {
@@ -137,13 +139,13 @@ export class GameBoard {
         const rowCells: Array<cell> = [];
         const colCells: Array<cell> = [];
         // get rows
-        for (let k = 1; k < this.r; k++) {
+        for (let k = 1; k < this.c; k++) {
             if (this._types[i][k] === TypeCell.INPUT) {
                 rowCells.push(this.getCell(i, k));
             }
         }
         // get columns
-        for (let k = 1; k < this.c; k++) {
+        for (let k = 1; k < this.r; k++) {
             if (this._types[k][j] === TypeCell.INPUT) {
                 colCells.push(this.getCell(k, j));
                 // console.log('[getStackCells columns]',k, j, cell);
