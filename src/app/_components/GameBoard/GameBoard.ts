@@ -102,6 +102,19 @@ export class GameBoard {
         }
     }
 
+    // when the cell is black, and the sum of the row and the sum of the column are equal to the value of the cells in the row and column
+    winStackCell(cell: cell): boolean {
+        // const [i, j] = [cell.i, cell.j];
+        const [rowValue, colValue] = cell.value as [number, number];
+        const [rowCells, colCells] = this.getStackCells(cell);
+        const rowSum = rowCells.reduce((a, b) => a + (b.value as number), 0);
+        const colSum = colCells.reduce((a, b) => a + (b.value as number), 0);
+        // const rowSum = this._board[i].slice(1).reduce((a, b) => a + b, 0);
+        // const colSum = this._board.map(r => r[j]).slice(1).reduce((a, b) => a + b, 0);
+        // console.log('[winStackCell]',rowSum, colSum);
+        return rowSum === rowValue && colSum === colValue;
+    }
+
 
     private subscribeBlackCells(cell: cell): void {
         if(cell.type !== TypeCell.STACK) return;
@@ -121,35 +134,20 @@ export class GameBoard {
         // save the subjects
         this._subjects[cell.i][cell.j] = [subjectRow, subjectCol];
     }
-    // when the cell is black, and the sum of the row and the sum of the column are equal to the value of the cells in the row and column
-    winStackCell(cell: cell): boolean {
-        // const [i, j] = [cell.i, cell.j];
-        const [rowValue, colValue] = cell.value as [number, number];
-        const [rowCells, colCells] = this.getStackCells(cell);
-        const rowSum = rowCells.reduce((a, b) => a + (b.value as number), 0);
-        const colSum = colCells.reduce((a, b) => a + (b.value as number), 0);
-        // const rowSum = this._board[i].slice(1).reduce((a, b) => a + b, 0);
-        // const colSum = this._board.map(r => r[j]).slice(1).reduce((a, b) => a + b, 0);
-        console.log('[winStackCell]',rowSum, colSum);
-        return rowSum === rowValue && colSum === colValue;
-    }
+
 
     private getStackCells(cell: cell): [Array<cell>, Array<cell>] {
         const [i, j] = [cell.i, cell.j];
         const rowCells: Array<cell> = [];
         const colCells: Array<cell> = [];
+        // TODO: memoize
         // get rows
-        for (let k = 1; k < this.c; k++) {
-            if (this._types[i][k] === TypeCell.INPUT) {
-                rowCells.push(this.getCell(i, k));
-            }
+        for (let k = j+1; k < this.c && this._types[i][k] === TypeCell.INPUT; k++) {
+            rowCells.push(this.getCell(i, k));
         }
         // get columns
-        for (let k = 1; k < this.r; k++) {
-            if (this._types[k][j] === TypeCell.INPUT) {
-                colCells.push(this.getCell(k, j));
-                // console.log('[getStackCells columns]',k, j, cell);
-            }
+        for (let k = i+1; k < this.r && this._types[k][j] === TypeCell.INPUT; k++) {
+            colCells.push(this.getCell(k, j));
         }
         console.log(`[getStackCells] ${cell.i} ${cell.j}`,rowCells, colCells);
         return [rowCells, colCells];
