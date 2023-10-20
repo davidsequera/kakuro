@@ -12,6 +12,7 @@ export const Board = ({r, c}: any) => {
   const [game, setGame] = useState<GameBoard>()
   const [selectedCell, setSelectedCell] = useState<cell>()
 
+  // create game
   useEffect(() => {
     setGame(new GameBoard(r, c))
     return () => {
@@ -19,33 +20,28 @@ export const Board = ({r, c}: any) => {
     }
   }, [r, c])
   
+  // listen keydown
   useEffect(() => {
     const subscription = listenKey()
     return () => {
       // console.log("unsubscribe")
       subscription.unsubscribe()
     }
-  }, [game, selectedCell])
+  })
 
-  const table = game?.board
-
-  const gridStyles = {
-    gridTemplateColumns: `repeat(${c}, auto)`,
-    gridTemplateRows: `repeat(${r}, auto)`
-  }
-
+  
   const pickCell = (i: number, j: number) => {
     setSelectedCell(game?.getCell(i,j))
   }
-
+  
   function listenKey(): Subscription{
     const keydown = fromEvent(document, 'keydown')
     // console.log("listen", game, selectedCell)
     return keydown.subscribe(handleKeyDown)
   }
-
+  
   const handleKeyDown = (e: any ) => {
-      const key = e.key as string
+    const key = e.key as string
       const regex = RegExp('[0-9]')
       // console.log("key", key, selectedCell)
       if (game && selectedCell) {
@@ -60,8 +56,36 @@ export const Board = ({r, c}: any) => {
   }
 
 
+  const  machinePlayer = async () => {
+    console.log("machine player")
+    if(game){
+      game.board.forEach((row, i) => {
+        row.forEach( (_, j) => {
+          const cell = game.getCell(i,j)
+          if(cell.type === TypeCell.INPUT){
+            const value = Math.floor(Math.random() *8 +1)
+            if(value){
+              game.setCell(i,j,value)
+            }
+          }
+        })
+      })
+    }
+  }
+
+
+
+
+
+
+  const gridStyles = {
+    gridTemplateColumns: `repeat(${c}, auto)`,
+    gridTemplateRows: `repeat(${r}, auto)`
+  }
+  const table = game?.board
+
   return (
-    <div className="board">
+    <div className="board flex flex-col">
         <h1 className="text-6xl m-5 font-sans ">Kakuro</h1>
         <p>By David Sequera</p>
         <div className={`grid`} style={gridStyles}>
@@ -84,6 +108,9 @@ export const Board = ({r, c}: any) => {
             )
           }
       </div>
+      <button className=" p-5 m-10 bg-sky-400 rounded-full" onClick={machinePlayer}>
+        Machine player
+      </button>
     </div>
   )
 }

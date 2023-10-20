@@ -1,5 +1,6 @@
 import { Subject, merge } from "rxjs";
 import { TypeCell, cell, cellValue } from "./TypeCell";
+import { createBoard, createSimpleBoard } from "./CreateBoard";
 
 export class GameBoard {
     private _board: Array<Array<any>> = [];
@@ -9,70 +10,72 @@ export class GameBoard {
 
     constructor(private r: number, private c: number) {
         this._initBoard(r, c);
-        // ...
+        this.saveSolution();
+        this.cleanBoard();
+        this.setInputCellsSubscriptions();
+
     }
 
     private _initBoard(r: number, c: number): void {
-        // Set the input cells
-        for (let i = 0; i < r; i++) {
-            this._board[i] = [];
-            this._types[i] = [];
+        if ( r < 5 && c < 5) {
+            [this._board, this._types] = createSimpleBoard(r, c);
+        }else{
+            [this._board, this._types] = createBoard(r, c);
+        }
+    }
+    private setInputCellsSubscriptions (): void{
+        // Set the subjects of the black cells
+        for (let i = 0; i < this.r; i++) {
             this._subjects[i] = [];
-            for (let j = 0; j < c; j++) {
-                this._board[i][j] = Math.round(Math.random() *8+1);
-                this._types[i][j] = TypeCell.INPUT;
-            }
-        }
-        // Set the stack cells
-        for (let i = 0; i < r; i++) {
-            this._board[i][0] = [0, 0];
-            this._types[i][0] = TypeCell.STACK;
-            for (let j = 1; j < c; j++) {
-                this._board[i][0][0] += this._board[i][j] as number;
-            }
-        }
-        for (let j = 0; j < c; j++) {
-            this._board[0][j] = [0,0];
-            this._types[0][j] = TypeCell.STACK;
-            for (let i = 1; i < r; i++) {
-                this._board[0][j][1] += this._board[i][j] as number;
-            }
-        }
-        // Set the blocked cells
-        this._types[0][0] = TypeCell.BLOCKED;
-        // Save one copy of the solution
-        this._solution = this._board.slice(0)
-        // clean the board
-        for (let i = 1; i < r; i++) {
-            for (let j = 1; j < c; j++) {
-                this._board[i][j] = 0;
-            }
-        }
-        // Set the subjects
-        for (let i = 1; i < r; i++) {
-            for (let j = 1; j < c; j++) {
+            for (let j = 0; j < this.c; j++) {
                 if (this._types[i][j] === TypeCell.INPUT)
                     this._subjects[i][j] = new Subject<cell>();
             }
         }
-        // Set the subjects of the black cells
-        for (let i = 0; i < r; i++) {
-            for (let j = 0; j < c; j++) {
-                if (this._types[i][j] === TypeCell.STACK)
-                    this._subjects[i][j] = new Subject<cell>();
+        // subscribe to the black cells
+        for (let i = 0; i < this.r; i++) {
+            for (let j = 0; j < this.c; j++) {
+                this.setStackCellsSubscriptions(this.getCell(i, j));
             }
         }
-        // subscribe to the black cells
-        for (let i = 0; i < r; i++) {
-            for (let j = 0; j < c; j++) {
-                this.subscribeBlackCells(this.getCell(i, j));
+    }
+
+    private saveSolution(): void {
+        this._solution = this._board.slice(0);
+    }
+    private cleanBoard(): void {
+        // clean the board
+        for (let i = 0; i < this.r; i++) {
+            for (let j = 0; j < this.c; j++) {
+                if (this._types[i][j] === TypeCell.INPUT){
+                    this._board[i][j] = 0;
+                }
             }
         }
     }
 
 
+    private setStackCellsSubscriptions(cell: cell): void {
+        if(cell.type !== TypeCell.STACK) return;
+        const input_cells = this.getStackCells(cell)
+        const rowCells = input_cells[0];
+        const colCells = input_cells[1];
+        // subscribe to the rows and columns
+        const observable_rows  = merge(...rowCells.map(c => c.subject));
+        const observable_cols = merge(...colCells.map(c => c.subject));
+        // subscribe to the rows and columns
+        const subjectRow = new Subject<cell>();
+        const subjectCol = new Subject<cell>();
 
-    get board(): Array<Array<number>> {
+        observable_rows.subscribe(subjectRow);
+        observable_cols.subscribe(subjectCol);
+
+        // save the subjects
+        this._subjects[cell.i][cell.j] = [subjectRow, subjectCol];
+    }
+
+
+    get board(): Array<Array<any>> {
         return this._board;
     }
 
@@ -113,26 +116,6 @@ export class GameBoard {
         // const colSum = this._board.map(r => r[j]).slice(1).reduce((a, b) => a + b, 0);
         // console.log('[winStackCell]',rowSum, colSum);
         return rowSum === rowValue && colSum === colValue;
-    }
-
-
-    private subscribeBlackCells(cell: cell): void {
-        if(cell.type !== TypeCell.STACK) return;
-        const input_cells = this.getStackCells(cell)
-        const rowCells = input_cells[0];
-        const colCells = input_cells[1];
-        // subscribe to the rows and columns
-        const observable_rows  = merge(...rowCells.map(c => c.subject));
-        const observable_cols = merge(...colCells.map(c => c.subject));
-        // subscribe to the rows and columns
-        const subjectRow = new Subject<cell>();
-        const subjectCol = new Subject<cell>();
-
-        observable_rows.subscribe(subjectRow);
-        observable_cols.subscribe(subjectCol);
-
-        // save the subjects
-        this._subjects[cell.i][cell.j] = [subjectRow, subjectCol];
     }
 
 
