@@ -1,15 +1,17 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import { GameBoard } from './GameBoard/GameBoard'
-import { TypeCell, cell } from './GameBoard/TypeCell'
+import React, { useEffect, useRef, useState } from 'react'
+import { GameBoard } from '../game_interface/GameBoard'
+import { TypeCell, cell } from '../game_interface/TypeCell'
 import { Subscription, fromEvent } from 'rxjs'
 import { CellInput } from './CellComponets/CellInput'
 import { CellBlocked } from './CellComponets/CellBlocked'
 import { CellStack } from './CellComponets/CellStack'
+import Image from 'next/image'
 
 export const Board = ({r, c}: any) => {
-
+  const workerRef = useRef<Worker>();
   const [game, setGame] = useState<GameBoard>()
+  const [win, setWin] = useState(false)
   const [selectedCell, setSelectedCell] = useState<cell>()
 
   // create game
@@ -32,6 +34,7 @@ export const Board = ({r, c}: any) => {
   
   const pickCell = (i: number, j: number) => {
     setSelectedCell(game?.getCell(i,j))
+    
   }
   
   function listenKey(): Subscription{
@@ -51,25 +54,30 @@ export const Board = ({r, c}: any) => {
         }
         if (regex.test(key)) {
           game.setCell(selectedCell.i, selectedCell.j, parseInt(key))
+          setWin(game.win())
         }
     }
   }
 
 
+  // machine player
+  useEffect(() => {
+    const worker = new Worker(new URL("../player/Worker.ts", import.meta.url ), { type: 'module' })
+    workerRef.current = worker
+    worker.onmessage = (e) => {
+      game?.setCell(e.data.i, e.data.j, e.data.value)
+      console.log('Message received from worker', e.data)
+    }
+  })
+
+
+
   const  machinePlayer = async () => {
-    console.log("machine player")
-    if(game){
-      game.board.forEach((row, i) => {
-        row.forEach( (_, j) => {
-          const cell = game.getCell(i,j)
-          if(cell.type === TypeCell.INPUT){
-            const value = Math.floor(Math.random() *8 +1)
-            if(value){
-              game.setCell(i,j,value)
-            }
-          }
-        })
-      })
+    const worker = workerRef.current
+    if(worker){
+      worker.postMessage({board: game?.board, types: game?.types, response: "hola soy el hilo principal"})
+    }else{
+      console.log("no worker")
     }
   }
 
@@ -85,6 +93,9 @@ export const Board = ({r, c}: any) => {
   const table = game?.board
 
   return (
+      <>
+      <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} />
+
     <div className="board flex flex-col">
         <h1 className="text-6xl m-5 font-sans ">Kakuro</h1>
         <p>By David Sequera</p>
@@ -108,9 +119,11 @@ export const Board = ({r, c}: any) => {
             )
           }
       </div>
-      <button className=" p-5 m-10 bg-sky-400 rounded-full" onClick={machinePlayer}>
+      <button className=" p-5 m-10 bg-sky-400 rounded-full self-center" onClick={machinePlayer}>
         Machine player
       </button>
+      {win && <h1 className="text-2xl m-5 font-sans sky-500 ">You win!</h1>}
     </div>
+    </>
   )
 }

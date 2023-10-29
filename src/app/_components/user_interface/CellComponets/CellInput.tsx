@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { border_color, general_styles, selectedStyes } from './styles'
-import { TypeCell, cellValue, cell } from '../GameBoard/TypeCell'
+import { TypeCell, cellValue, cell } from '../../game_interface/TypeCell'
 
-export const CellInput = ({pickCell, selected, cell}: any) => {
+export const CellInput = ({pickCell, selected, cell, gsize}: any) => {
 
     const [value, setValue] = useState<cellValue>(cell.value)
     

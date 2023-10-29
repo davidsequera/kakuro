@@ -16,7 +16,7 @@ export type cell ={
     j: number,
     value: cellValue,
     type: TypeCell,
-    subject?: Subject<cell>,
+    subject?: Subject<cell> | [Subject<cell>, Subject<cell>],
 }
 
 

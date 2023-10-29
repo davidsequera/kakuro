@@ -1,15 +1,29 @@
-// Define a function to be run in the worker
-function workerFunction() {
-    console.log('Worker function running');
-}
+import { GameBoard } from "../game_interface/GameBoard";
+import { TypeCell } from "../game_interface/TypeCell";
 
-// Create a new worker and pass in the function to run
-const worker = new Worker(URL.createObjectURL(new Blob([`(${workerFunction})()`])));
+
+let win = false;
 
 // Listen for messages from the worker
-worker.onmessage = (event) => {
-    console.log(`Received message from worker: ${event.data}`);
+self.onmessage = (e) => {
+    const {response}= e.data;
+    console.log("[worker] me llego algo:",response);
+    // machinePlayer(game);
+    setInterval(() => {
+        
+        postMessage(play(e.data.board, e.data.types));
+    }, 100)
 };
 
-// Send a message to the worker
-worker.postMessage('Hello from main thread!');
+const  play = (board: any, types: any) => {
+    const [r, c] = [board.length, board[0].length];
+    let [i, j] = [0, 0];
+    do{
+        i = Math.floor(Math.random() * r);  // Generar fila aleatoria
+        j = Math.floor(Math.random() * c);  // Generar columna aleatoria
+    }
+    while (types[i][j] !== TypeCell.INPUT)
+    const value = Math.floor(Math.random() *8 + 1);
+    return {i, j, value, response: "Hola soy el worker"};
+
+}

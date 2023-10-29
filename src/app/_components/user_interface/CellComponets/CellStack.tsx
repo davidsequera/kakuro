@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { border_color, diagonal_color, diagonal_styles, general_styles, incorrect_diagonal_color } from './styles'
 import { Subject } from 'rxjs'
-import { cell } from '../GameBoard/TypeCell'
+import { cell } from '../../game_interface/TypeCell'
 
 export const CellStack = ({cell, game}: any) => {
     const v = cell.value as [number, number]

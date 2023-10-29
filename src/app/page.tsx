@@ -1,5 +1,5 @@
-import { Board } from './_components/Board'
-import { Keyboard } from './_components/Keyboard/Keyboard'
+import { Board } from './_components/user_interface/Board'
+import { Keyboard } from './_components/user_interface/Keyboard/Keyboard'
 
 export default function Home() {
   return (
