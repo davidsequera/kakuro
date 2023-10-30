@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { use, useEffect, useRef, useState } from 'react'
 import { GameBoard } from '../game_interface/GameBoard'
 import { TypeCell, cell } from '../game_interface/TypeCell'
 import { Subscription, fromEvent } from 'rxjs'
@@ -7,6 +7,7 @@ import { CellInput } from './CellComponets/CellInput'
 import { CellBlocked } from './CellComponets/CellBlocked'
 import { CellStack } from './CellComponets/CellStack'
 import Image from 'next/image'
+import { action } from '../player/Actions'
 
 export const Board = ({r, c}: any) => {
   const workerRef = useRef<Worker>();
@@ -31,6 +32,22 @@ export const Board = ({r, c}: any) => {
     }
   })
 
+
+  useEffect(() => {
+    const observer = {
+      next: () => {
+        setWin(game?.win() || false)
+      }
+    }
+    if(game){
+      const subject = game.change_subject
+      const subscription = subject.subscribe(observer)
+      return () => {
+        // console.log("[board] unsubscribe")
+        subscription.unsubscribe()
+      }
+    }
+  })
   
   const pickCell = (i: number, j: number) => {
     setSelectedCell(game?.getCell(i,j))
@@ -54,7 +71,6 @@ export const Board = ({r, c}: any) => {
         }
         if (regex.test(key)) {
           game.setCell(selectedCell.i, selectedCell.j, parseInt(key))
-          setWin(game.win())
         }
     }
   }
@@ -65,7 +81,10 @@ export const Board = ({r, c}: any) => {
     const worker = new Worker(new URL("../player/Worker.ts", import.meta.url ), { type: 'module' })
     workerRef.current = worker
     worker.onmessage = (e) => {
-      game?.setCell(e.data.i, e.data.j, e.data.value)
+      const actions = e.data.actions
+      actions.forEach((action: action) => {
+        game?.setCell(action.i, action.j, action.value)
+      });
       console.log('Message received from worker', e.data)
     }
   })

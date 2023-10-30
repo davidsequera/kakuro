@@ -11,6 +11,7 @@ export class GameBoard {
     private _subjects: Array<Array<Subject<cell> | [Subject<cell>, Subject<cell> ]>> = [];
 
     private _judge!: Observer<any>;
+    public change_subject!: Subject<void>;
 
     private _stackCells_state: Map<string, boolean> = new Map<string, boolean>();
     
@@ -18,7 +19,7 @@ export class GameBoard {
     constructor(private _r: number, private _c: number) {
         this._initBoard(_r, _c);
         this.saveSolution();
-        // this.cleanBoard();
+        this.cleanBoard();
         this.setInputCellsSubscriptions();
         this.setJudgeSubsctiption();
     }
@@ -78,11 +79,12 @@ export class GameBoard {
         observable_cols.subscribe(subjectCol);
 
         // save the subjects
-        this._subjects[cell.i][cell.j] = [subjectRow, subjectCol];
+        this._subjects[cell.i][cell.j] = [subjectRow, subjectCol] as [Subject<cell>, Subject<cell> ];
     }
 
 
     private setJudgeSubsctiption(): void {
+        this.change_subject = new Subject<void>();
         const stackCells = []
         for (let i = 0; i < this._r; i++) {
             for (let j = 0; j < this._c; j++) {
@@ -95,8 +97,9 @@ export class GameBoard {
         console.log('[setJudgeSubsctiption]', observables)
         this._judge = {
             next: (cell: cell) => {
-                console.log('[judge] next', cell);
+                console.log('[judge] next', this.getCell(cell.i, cell.j));
                 this._stackCells_state.set(`${cell.i}-${cell.j}`, this.winStackCell(cell));
+                this.change_subject.next();
             },
             error: (err: any) => {
                 console.log('[judge] error', err);
@@ -179,6 +182,9 @@ export class GameBoard {
     }
     get types(): Array<Array<TypeCell>> {
         return this._types;
+    }
+    get judge(): Observer<any> {
+        return this._judge;
     }
     get r(): number {
         return this._r;

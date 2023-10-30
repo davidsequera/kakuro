@@ -10,7 +10,7 @@ export const createSimpleBoard = (r: number, c: number): [Array<Array<any>>,Arra
         types[i] = [];
     }
 
-    setSimpleInputCells(r,c,board, types);
+    setSimpleInputCells(types, board, r, c);
     // Set the stack cells
     // Rows
     for (let i = 0; i < r; i++) {
@@ -164,10 +164,29 @@ const setInputCellsPath = (types: Array<Array<TypeCell>>, board: Array<Array<any
 
 
 
-const setSimpleInputCells = (r: number,c: number, board: Array<Array<any>>, types: Array<Array<TypeCell>>) => {
-    for (let i = 0; i < r; i++) {
-        for (let j = 0; j < c; j++) {
-            board[i][j] = Math.floor(Math.random() *9 +1);
+const setSimpleInputCells = (types: Array<Array<TypeCell>>,board: Array<Array<any>>,r: number,c: number) => {
+    const sequence = new Set([1,2,3,4,5,6,7,8,9]);
+    for (let i = 1; i < r; i++) {
+        for (let j = 1; j < c; j++) {
+            let [ii, jj] = [i-1, j-1];
+            let excluded = new Set<number>();
+            // Get the excluded numbers of the row
+            while(ii >= 0 && types[ii][j] === TypeCell.INPUT ){
+                excluded.add(board[ii][j]);
+                ii--;
+            }
+            // Get the excluded numbers of the column
+            while(jj >= 0 && types[i][jj] === TypeCell.INPUT ){
+                excluded.add(board[i][jj]);
+                jj--;
+            }
+            if( excluded.size === sequence.size){
+                types[i][j] = TypeCell.BLOCKED;
+                continue;
+            }
+            let included: Array<number> =  Array.from(sequence).filter((num) => !excluded.has(num)); 
+            let index = Math.floor(Math.random() *included.length);
+            board[i][j] = included[index];
             types[i][j] = TypeCell.INPUT;
         }
     }
@@ -198,7 +217,7 @@ const setInputCellsValue = (types: Array<Array<TypeCell>>,board: Array<Array<any
             let included: Array<number> =  Array.from(sequence).filter((num) => !excluded.has(num)); 
             let index = Math.floor(Math.random() *included.length);
             board[i][j] = included[index];
-            types[i][j] = TypeCell.INPUT;
+            // types[i][j] = TypeCell.INPUT;
             console.log(i,j,board[i][j],excluded);
         }
     }
