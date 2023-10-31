@@ -1,9 +1,14 @@
+import { re } from "mathjs";
 import { TypeCell } from "../game_interface/TypeCell";
 import { findPermutations } from "../lib/utils";
 import { action } from "./Actions";
+import { StateMessage, ActionMessage } from "./Message";
 
 let win = false;
 
+let tries = 0;
+
+const LIMIT = 1000;
 
 const memory = new Map<string, number[][]>();
 const stack_cells = Array<any>();
@@ -18,10 +23,11 @@ const get = (num: number, len: number ): number[][] => {
 
 // Listen for messages from the worker
 self.onmessage = (e) => {
-    const {response}= e.data;
-    console.log("[worker] me llego algo:",response);
-    // machinePlayer(game);
-    postMessage(play(e.data.board, e.data.types));
+    const response: StateMessage = e.data;
+    win = response.state;
+    if(!win && tries++ < LIMIT){
+        postMessage(play(e.data.board, e.data.types));
+    }
 };
 
 
@@ -34,7 +40,8 @@ const  play = (board: Array<Array<any>>, types: Array<Array<TypeCell>>) => {
         for (let i = 0; i < r; i++) {
             for (let j = 0; j < c; j++) { 
                 if (types[i][j] !== TypeCell.STACK) continue
-                stack_cells.push({i, j, row_permutations: get(board[i][j][0], 2), col_permutations: get(board[i][j][1], 2)});
+                const [row_count, column_count] = getNumberOfInpuCells(board, types, i, j);
+                stack_cells.push({i, j, row_permutations: get(board[i][j][0], row_count), col_permutations: get(board[i][j][1], column_count)});
             }
         }
     }
@@ -43,7 +50,6 @@ const  play = (board: Array<Array<any>>, types: Array<Array<TypeCell>>) => {
     stack_cells.forEach((cell: any) => {
         const [i, j] = [cell.i, cell.j];
         const [row_permutations, col_permutations] = [cell.row_permutations, cell.col_permutations];
-        console.log("row_permutations:", row_permutations);
         const row_per = row_permutations[Math.floor(Math.random() * row_permutations.length)]
         const col_per = col_permutations[Math.floor(Math.random() * col_permutations.length)]
         if(row_per)
@@ -55,9 +61,25 @@ const  play = (board: Array<Array<any>>, types: Array<Array<TypeCell>>) => {
                 actions.push({i: i+index+1, j, value});
             });
     })
+    const response: ActionMessage = {actions, response: "ok"};
+    return response;
+}
 
-    return {actions, response: "ok"};
 
+const getNumberOfInpuCells = (board: Array<Array<any>>, types: Array<Array<TypeCell>>,i: number, j : number): [number, number] => {
+    const [r, c] = [board.length, board[0].length];
+    let [row_count, column_count] = [0, 0];
+    let [ii, jj] = [i+1, j+1];
+    while(ii < r && types[ii][j] === TypeCell.INPUT ){
+        column_count++;
+        ii++;
+    }
+    // Get the numbers of the column
+    while(jj < c && types[i][jj] === TypeCell.INPUT ){
+        row_count++;
+        jj++;
+    }
+    return [row_count, column_count];
 }
 
 

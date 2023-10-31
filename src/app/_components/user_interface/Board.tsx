@@ -8,6 +8,7 @@ import { CellBlocked } from './CellComponets/CellBlocked'
 import { CellStack } from './CellComponets/CellStack'
 import Image from 'next/image'
 import { action } from '../player/Actions'
+import { StateMessage } from '../player/Message'
 
 export const Board = ({r, c}: any) => {
   const workerRef = useRef<Worker>();
@@ -85,7 +86,9 @@ export const Board = ({r, c}: any) => {
       actions.forEach((action: action) => {
         game?.setCell(action.i, action.j, action.value)
       });
-      console.log('Message received from worker', e.data)
+      console.log('[MainThread]', e.data)
+      const message: StateMessage = {board: game!.board, types: game!.types, state: game!.win(), response: "(Main thread)"}
+      worker.postMessage(message)
     }
   })
 
@@ -94,7 +97,8 @@ export const Board = ({r, c}: any) => {
   const  machinePlayer = async () => {
     const worker = workerRef.current
     if(worker){
-      worker.postMessage({board: game?.board, types: game?.types, response: "hola soy el hilo principal"})
+      const message: StateMessage = {board: game!.board, types: game!.types, state: game!.win(), response: "(Main thread)"}
+      worker.postMessage(message)
     }else{
       console.log("no worker")
     }
@@ -113,8 +117,6 @@ export const Board = ({r, c}: any) => {
 
   return (
       <>
-      <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} />
-
     <div className="board flex flex-col">
         <h1 className="text-6xl m-5 font-sans ">Kakuro</h1>
         <p>By David Sequera</p>
@@ -143,6 +145,7 @@ export const Board = ({r, c}: any) => {
       </button>
       {win && <h1 className="text-2xl m-5 font-sans sky-500 ">You win!</h1>}
     </div>
+    <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} />
     </>
   )
 }
