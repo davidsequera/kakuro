@@ -218,7 +218,7 @@ const setInputCellsValue = (types: Array<Array<TypeCell>>,board: Array<Array<any
             let index = Math.floor(Math.random() *included.length);
             board[i][j] = included[index];
             // types[i][j] = TypeCell.INPUT;
-            console.log(i,j,board[i][j],excluded);
+            // console.log(i,j,board[i][j],excluded);
         }
     }
 }

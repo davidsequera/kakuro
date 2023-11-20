@@ -94,10 +94,10 @@ export class GameBoard {
         }
         const observables = stackCells.flatMap((cell: cell) => cell.subject as [Subject<cell>, Subject<cell> ]);
         const observable = merge(...observables)
-        console.log('[setJudgeSubsctiption]', observables)
+        // console.log('[setJudgeSubsctiption]', observables)
         this._judge = {
             next: (cell: cell) => {
-                console.log('[judge] next', this.getCell(cell.i, cell.j));
+                // console.log('[judge] next', this.getCell(cell.i, cell.j));
                 this._stackCells_state.set(`${cell.i}-${cell.j}`, this.winStackCell(cell));
                 this.change_subject.next();
             },
@@ -144,6 +144,7 @@ export class GameBoard {
         // const [i, j] = [cell.i, cell.j];
         const [rowValue, colValue] = cell.value as [number, number];
         const [rowCells, colCells] = this.getStackCells(cell) as [Array<cell>, Array<cell>];
+        
         const rowSum = rowCells.reduce((a, b) => a + (b.value as number), 0);
         const colSum = colCells.reduce((a, b) => a + (b.value as number), 0);
         // const rowSum = this._board[i].slice(1).reduce((a, b) => a + b, 0);

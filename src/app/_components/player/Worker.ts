@@ -8,10 +8,10 @@ let win = false;
 
 let tries = 0;
 
-const LIMIT = 1000;
+const LIMIT = 100000;
 
 const memory = new Map<string, number[][]>();
-const stack_cells = Array<any>();
+const stack_cells = new Map<string,any>();
 
 const get = (num: number, len: number ): number[][] => {
     const key = `${num}-${len}`;
@@ -36,18 +36,20 @@ self.onmessage = (e) => {
 const  play = (board: Array<Array<any>>, types: Array<Array<TypeCell>>) => {
     const [r, c] = [board.length, board[0].length];
     let [i, j] = [0, 0];
-    if (stack_cells.length === 0) {
+    if (stack_cells.size === 0) {
         for (let i = 0; i < r; i++) {
             for (let j = 0; j < c; j++) { 
                 if (types[i][j] !== TypeCell.STACK) continue
                 const [row_count, column_count] = getNumberOfInpuCells(board, types, i, j);
-                stack_cells.push({i, j, row_permutations: get(board[i][j][0], row_count), col_permutations: get(board[i][j][1], column_count)});
+                stack_cells.set(`${i},${j}`,{i, j, row_permutations: get(board[i][j][0], row_count).slice(0), col_permutations: get(board[i][j][1], column_count).slice(0)});
             }
         }
+        console.log("stack_cells before:", stack_cells);
+        clean_permutation(board, types, stack_cells);
+        console.log("stack_cells after:", stack_cells);
     }
-    console.log("stack_cells:", stack_cells);
     const actions: action[] = [];
-    stack_cells.forEach((cell: any) => {
+    stack_cells.forEach((cell: any, key: string) => {
         const [i, j] = [cell.i, cell.j];
         const [row_permutations, col_permutations] = [cell.row_permutations, cell.col_permutations];
         const row_per = row_permutations[Math.floor(Math.random() * row_permutations.length)]
@@ -66,6 +68,56 @@ const  play = (board: Array<Array<any>>, types: Array<Array<TypeCell>>) => {
 }
 
 
+const clean_permutation = (board: any[][], types: TypeCell[][], stack_cells: Map<string,any>) =>{
+    const [r, c] = [board.length, board[0].length];
+    for (let i = 0; i < r; i++) {
+        for (let j = 0; j < c; j++) {
+            if( types[i][j] !== TypeCell.INPUT) continue;
+            const [row_count, column_count] = getStackCells(types, i, j);
+            const row_key = `${i},${j-column_count}`;
+            const col_key = `${i-row_count},${j}`;
+            // console.log("position", `${i},${j}`, "row", row_key, "col", col_key );
+            // console.log("array", "row", row_count, "col", column_count );
+            if(stack_cells.has(row_key) && stack_cells.has(col_key)){
+                matcher(stack_cells.get(row_key), stack_cells.get(col_key), column_count-1, row_count-1);
+            }
+            
+        }
+    }
+
+}
+
+
+const matcher = (row_stack_cell: any, column_stack_cell: any, i:  number,j: number ): void => {
+    // let copy_row = [...row_stack_cell.row_permutations];
+    // let copy_col = [...column_stack_cell.col_permutations];
+    let row_per: Set<number[]> = new Set();
+    let col_per: Set<number[]> = new Set();
+    // console.log(i,j);
+    // console.log("row_stack_cell before", row_stack_cell);
+    // console.log("column_stack_cell before", column_stack_cell);
+    for (let rper of row_stack_cell.row_permutations) {
+        for (let cper of column_stack_cell.col_permutations) {
+            if(rper[i] === cper[j]){
+                row_per.add(rper);
+                col_per.add(cper);
+            }
+        }
+    }
+    if (row_stack_cell.row_permutations.length < row_per.size) {
+        console.log("algo fallo")
+    }
+    if (column_stack_cell.col_permutations.length < col_per.size) {
+        console.log("algo fallo")
+    }
+    // row_stack_cell.row_permutations = Array.from(row_per);
+    // column_stack_cell.col_permutations = Array.from(col_per);
+    // console.log("copy_row", (copy_row));
+    // console.log("row_per", (row_per));
+    // console.log("copy_col", (copy_col));
+    // console.log("col_per", (col_per));
+}
+
 const getNumberOfInpuCells = (board: Array<Array<any>>, types: Array<Array<TypeCell>>,i: number, j : number): [number, number] => {
     const [r, c] = [board.length, board[0].length];
     let [row_count, column_count] = [0, 0];
@@ -82,7 +134,23 @@ const getNumberOfInpuCells = (board: Array<Array<any>>, types: Array<Array<TypeC
     return [row_count, column_count];
 }
 
-
+const getStackCells = (types: Array<Array<TypeCell>>, i: number, j: number): Array<any> => {
+    // To de column that means whe
+    let [row_count, column_count] = [0, 0];
+    let [di, dj] = [i, j];
+    while(di >= 0 && types[di][j] === TypeCell.INPUT ){
+        // in order to get the column we need to count the rows
+        row_count++; 
+        di--;
+    }
+    // Get the numbers of the column
+    while(dj >= 0 && types[i][dj] === TypeCell.INPUT ){
+        // in order to get the row we need to count the columns
+        column_count++;
+        dj--;
+    }
+    return [row_count, column_count];
+}
 
 // const machinePlayer = async () => {
 //     console.log("machine player");
