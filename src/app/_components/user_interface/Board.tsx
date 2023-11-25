@@ -9,6 +9,8 @@ import { CellStack } from './CellComponets/CellStack'
 import Image from 'next/image'
 import { action } from '../player/Actions'
 import { StateMessage } from '../player/Message'
+import FileUploader from './Menu/FileUploader'
+import Menu from './Menu/Menu'
 
 export const Board = ({r, c}: any) => {
   const workerRef = useRef<Worker>();
@@ -33,7 +35,7 @@ export const Board = ({r, c}: any) => {
     }
   })
 
-
+  // create obserber and listen win
   useEffect(() => {
     const observer = {
       next: () => {
@@ -106,9 +108,6 @@ export const Board = ({r, c}: any) => {
 
 
 
-
-
-
   const gridStyles = {
     gridTemplateColumns: `repeat(${c}, auto)`,
     gridTemplateRows: `repeat(${r}, auto)`
@@ -143,9 +142,11 @@ export const Board = ({r, c}: any) => {
       <button className=" p-5 m-10 bg-sky-400 rounded-full self-center" onClick={machinePlayer}>
         Machine player
       </button>
+      {/* <FileUploader /> */}
       {win && <h1 className="text-2xl m-5 font-sans sky-500 ">You win!</h1>}
     </div>
-    <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} />
+      <Menu/>
+    {/* <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} /> */}
     </>
   )
 }

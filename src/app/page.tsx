@@ -4,7 +4,7 @@ import { Keyboard } from './_components/user_interface/Keyboard/Keyboard'
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-5">
-      <Board r={10} c={10} />
+      <Board r={4} c={4} />
       {/* <Keyboard /> */}
     </main>
   )

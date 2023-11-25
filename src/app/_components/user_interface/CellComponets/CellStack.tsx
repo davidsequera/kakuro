@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { border_color, diagonal_color, diagonal_styles, general_styles, incorrect_diagonal_color } from './styles'
+import { cell_border_color, cell_diagonal_color, cell_diagonal_styles, cell_general_styles, cell_incorrect_diagonal_color } from '../styles'
 import { Subject } from 'rxjs'
 import { cell } from '../../game_interface/TypeCell'
 
@@ -27,7 +27,7 @@ export const CellStack = ({cell, game}: any) => {
     }
 
     return (
-        <div className={`${general_styles} ${diagonal_styles}  ${correct? border_color : 'border-red-500' } ${correct? 'bg-sky-500/70':'bg-red-500/70'} ${correct? diagonal_color : incorrect_diagonal_color}  relative grid grid-rows-2   `}>
+        <div className={`${cell_general_styles} ${cell_diagonal_styles}  ${correct? cell_border_color : 'border-red-500' } ${correct? 'bg-sky-500/70':'bg-red-500/70'} ${correct? cell_diagonal_color : cell_incorrect_diagonal_color}  relative grid grid-rows-2   `}>
             <p className="font-bold text-3xl sm:text-4xl justify-self-end">{v[0]!= 0 && v[0]}</p>
             <p className="font-bold text-3xl sm:text-4xl">{v[1]!= 0 && v[1]}</p>
         </div>

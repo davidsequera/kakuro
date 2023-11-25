@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { border_color, general_styles, selectedStyes } from './styles'
+import { cell_border_color, cell_general_styles, cell_selectedStyes } from '../styles'
 import { TypeCell, cellValue, cell } from '../../game_interface/TypeCell'
 
 export const CellInput = ({pickCell, selected, cell, gsize}: any) => {
@@ -29,7 +29,7 @@ export const CellInput = ({pickCell, selected, cell, gsize}: any) => {
         pickCell(cell.i,cell.j)
     }
     return (
-        <div onClick={handleClick} className={`${general_styles} ${border_color} ${selected ? selectedStyes : 'hover:bg-sky-500/50  bg-sky-500/20'} flex justify-center items-center`}>
+        <div onClick={handleClick} className={`${cell_general_styles} ${cell_border_color} ${selected ? cell_selectedStyes : 'hover:bg-sky-500/50  bg-sky-500/20'} flex justify-center items-center`}>
             <p className="font-bold text-3xl sm:text-4xl">{value != 0 && value}</p>
         </div>
     )
