@@ -136,9 +136,9 @@ export const Board = ({r, c}: any) => {
           }
       </div>
 
-      {win && <h1 className="text-2xl m-5 font-sans sky-500 ">You win!</h1>}
+      {win && <h1 className="text-2xl m-2 italic font-sans text-sky-500 self-center hover:text-white cursor-pointer">You win!</h1>}
     </div>
-      <Settings  play={machinePlayer}/>
+    <Settings  play={machinePlayer}/>
     {/* <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} /> */}
     </>
   )
