@@ -19,13 +19,16 @@ const FileUploader: React.FC = () => {
   };
 
   return (
-    <div>
-      <input type="file" onChange={handleFileUpload} />
+    <section>
+      <div role='button' className='m-5 p-3 bg-sky-400 rounded-full'>
+        <label htmlFor="file">Upload a board</label>
+        <input className='hidden' id="file" name="file"type="file" onChange={handleFileUpload} />
+      </div>
       <div>
         <h3>File Contents:</h3>
         <pre>{fileContent}</pre>
       </div>
-    </div>
+    </section>
   );
 };
 

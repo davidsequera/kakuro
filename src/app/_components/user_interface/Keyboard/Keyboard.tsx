@@ -3,7 +3,7 @@ import React from 'react'
 export const Keyboard = () => {
     const a = Array.from(Array(9).keys())
     return (
-        <div>
+        <section>
             <h1>Keyboard</h1>
             <div  className='grid grid-cols-3 gap-2'>
                 {a.map((i) => {
@@ -14,6 +14,6 @@ export const Keyboard = () => {
                     )
                 })}
             </div>
-        </div>
+        </section>
     )
 }

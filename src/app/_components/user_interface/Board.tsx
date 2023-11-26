@@ -1,16 +1,14 @@
 'use client'
-import React, { use, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { GameBoard } from '../game_interface/GameBoard'
 import { TypeCell, cell } from '../game_interface/TypeCell'
 import { Subscription, fromEvent } from 'rxjs'
 import { CellInput } from './CellComponets/CellInput'
 import { CellBlocked } from './CellComponets/CellBlocked'
 import { CellStack } from './CellComponets/CellStack'
-import Image from 'next/image'
 import { action } from '../player/Actions'
 import { StateMessage } from '../player/Message'
-import FileUploader from './Menu/FileUploader'
-import Menu from './Menu/Menu'
+import Settings from './Settings/Settings'
 
 export const Board = ({r, c}: any) => {
   const workerRef = useRef<Worker>();
@@ -117,8 +115,6 @@ export const Board = ({r, c}: any) => {
   return (
       <>
     <div className="board flex flex-col">
-        <h1 className="text-6xl m-5 font-sans ">Kakuro</h1>
-        <p>By David Sequera</p>
         <div className={`grid`} style={gridStyles}>
           {table?.flatMap((row, i) =>
              (row.map((_, j) =>
@@ -139,13 +135,10 @@ export const Board = ({r, c}: any) => {
             )
           }
       </div>
-      <button className=" p-5 m-10 bg-sky-400 rounded-full self-center" onClick={machinePlayer}>
-        Machine player
-      </button>
-      {/* <FileUploader /> */}
+
       {win && <h1 className="text-2xl m-5 font-sans sky-500 ">You win!</h1>}
     </div>
-      <Menu/>
+      <Settings  play={machinePlayer}/>
     {/* <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} /> */}
     </>
   )
