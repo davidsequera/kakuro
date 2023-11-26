@@ -49,6 +49,45 @@ export const createBoard = (r: number, c: number): [Array<Array<any>>, Array<Arr
     return [board, types];
 }
 
+
+export const createBoardFromFile = (fileContent: string): [Array<Array<any>>, Array<Array<TypeCell>>] => {
+    try{
+        const lines = fileContent.split('\n');
+        const [c,r] = lines[0].split(' ').map(Number);
+        const board: Array<Array<any>> = [];
+        const types: Array<Array<TypeCell>> = [];
+    
+        for (let i = 0; i < r; i++) {
+            board[i] = [];
+            types[i] = [];
+        }
+    
+        for (let i = 0; i < r; i++) {
+            for (let j = 0; j < c; j++) {    
+                board[i][j] = 0;
+                types[i][j] = TypeCell.INPUT;        
+            }
+        }
+        for (let u = 1; u < lines.length; u++) {
+            const [i,j, v1,v2] = lines[u].split(' ').map(Number);
+            if(v1 === -1 && v2 === -1){
+                types[i][j] = TypeCell.BLOCKED;
+            }else{
+                types[i][j] = TypeCell.STACK;
+                board[i][j] = [v1,v2];            
+            }
+        }
+    
+    
+        return [board, types];
+
+    }catch(e){
+        console.error(e);
+        return createSimpleBoard(4,4);
+    }
+
+}
+
 // function pickRandomPositionLinear(matrix) {
 //     const M = matrix.length;
 //     const N = matrix[0].length;
@@ -269,5 +308,3 @@ const setColumnsStackCells = (types: Array<Array<TypeCell>>, board: Array<Array<
         }
     }
 }
-
-

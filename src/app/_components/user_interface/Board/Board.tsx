@@ -1,14 +1,13 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { GameBoard } from '../game_interface/GameBoard'
-import { TypeCell, cell } from '../game_interface/TypeCell'
+import { GameBoard } from '../../game_interface/GameBoard'
+import { cell } from '../../game_interface/TypeCell'
 import { Subscription, fromEvent } from 'rxjs'
-import { CellInput } from './CellComponets/CellInput'
-import { CellBlocked } from './CellComponets/CellBlocked'
-import { CellStack } from './CellComponets/CellStack'
-import { action } from '../player/Actions'
-import { StateMessage } from '../player/Message'
-import Settings from './Settings/Settings'
+import { action } from '../../player/Actions'
+import { StateMessage } from '../../player/Message'
+import Settings from '../Settings/Settings'
+import MatrixComponent from './MatrixComponent'
+import Loading from '../Loading'
 
 export const Board = ({r, c}: any) => {
   const workerRef = useRef<Worker>();
@@ -49,16 +48,7 @@ export const Board = ({r, c}: any) => {
       }
     }
   })
-  
-  const pickCell = (i: number, j: number) => {
-    if(selectedCell?.i == i && selectedCell?.j == j){
-      setSelectedCell(undefined)
-      return
-    }
-    setSelectedCell(game?.getCell(i,j))
     
-  }
-  
   function listenKey(): Subscription{
     const keydown = fromEvent(document, 'keydown')
     // console.log("listen", game, selectedCell)
@@ -83,7 +73,7 @@ export const Board = ({r, c}: any) => {
 
   // machine player
   useEffect(() => {
-    const worker = new Worker(new URL("../player/Worker.ts", import.meta.url ), { type: 'module' })
+    const worker = new Worker(new URL("../../player/Worker.ts", import.meta.url ), { type: 'module' })
     workerRef.current = worker
     worker.onmessage = (e) => {
       const actions = e.data.actions
@@ -110,39 +100,17 @@ export const Board = ({r, c}: any) => {
 
 
 
-  const gridStyles = {
-    gridTemplateColumns: `repeat(${c}, auto)`,
-    gridTemplateRows: `repeat(${r}, auto)`
-  }
-  const table = game?.board
 
   return (
       <>
     <div className="board flex flex-col">
-        <div className={`grid`} style={gridStyles}>
-          {table?.flatMap((row, i) =>
-             (row.map((_, j) =>
-                  {
-                    const cell = game!.getCell(i,j)
-                    if(cell.type === TypeCell.INPUT){
-                      return <CellInput key={`${i}-${j} `} selected={ selectedCell?.i == i &&  selectedCell?.j == j } pickCell={pickCell}  cell={cell}/>
-                    }
-                    if(cell.type === TypeCell.BLOCKED){
-                      return <CellBlocked key={`${i}-${j}`} />
-                    }                    
-                    if(cell.type === TypeCell.STACK){
-                      return <CellStack key={`${i}-${j}`} cell={cell} game={game} />
-                    }                   
-                  }
-                )
-              )
-            )
-          }
-      </div>
-
+      { game ?
+        <MatrixComponent game={game} selectedCell={selectedCell} setSelectedCell={setSelectedCell} />
+        : <Loading />
+      }
       {win && <h1 className="text-2xl m-2 italic font-sans text-sky-500 self-center hover:text-white cursor-pointer">You win!</h1>}
     </div>
-    <Settings  play={machinePlayer}/>
+    {game && <Settings  play={machinePlayer}/>}
     {/* <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} /> */}
     </>
   )
