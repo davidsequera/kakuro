@@ -51,6 +51,10 @@ export const Board = ({r, c}: any) => {
   })
   
   const pickCell = (i: number, j: number) => {
+    if(selectedCell?.i == i && selectedCell?.j == j){
+      setSelectedCell(undefined)
+      return
+    }
     setSelectedCell(game?.getCell(i,j))
     
   }

@@ -144,7 +144,12 @@ export class GameBoard {
         // const [i, j] = [cell.i, cell.j];
         const [rowValue, colValue] = cell.value as [number, number];
         const [rowCells, colCells] = this.getStackCells(cell) as [Array<cell>, Array<cell>];
-        
+
+        // all are different
+        const rowSet = new Set(rowCells.map(c => c.value as number));
+        const colSet = new Set(colCells.map(c => c.value as number));
+        if(rowSet.size !== rowCells.length || colSet.size !== colCells.length) return false;
+
         const rowSum = rowCells.reduce((a, b) => a + (b.value as number), 0);
         const colSum = colCells.reduce((a, b) => a + (b.value as number), 0);
         // const rowSum = this._board[i].slice(1).reduce((a, b) => a + b, 0);
