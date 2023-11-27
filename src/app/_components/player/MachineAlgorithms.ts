@@ -1,4 +1,4 @@
-import { PossibleAction, TypeDirection, action } from "./Actions";
+import { PossibleAction, action } from "./Actions";
 import { TypeCell } from "../game_interface/TypeCell";
 import { findCombinations, findPermutations } from "../lib/utils";
 import { ActionMessage } from "./Message";
@@ -29,7 +29,6 @@ const get_combinations = (num: number, len: number ): number[][] => {
 
 export const  SearchPlay = (board: Array<Array<any>>, types: Array<Array<TypeCell>>) => {
     const [r, c] = [board.length, board[0].length];
-    let kakuro: Array<any> = [];
     const plays= new MinHeap<PossibleAction>();
 
     // Get all possible plays
@@ -37,18 +36,10 @@ export const  SearchPlay = (board: Array<Array<any>>, types: Array<Array<TypeCel
       for (let j = 0; j < c; j++) {
           // Get probable plays
           if (types[i][j] === TypeCell.INPUT) {
-              const [row_count, column_count] = getNumberOfInpuCells(board, types, i, j);
-              // Get the numbers of the row and column
-              [ TypeDirection.ROW, TypeDirection.COLUMN ].forEach((direction) => {
-                const play: PossibleAction = { i, j, direction, value: [] };
-                const combinations = get_combinations(board[i][j][direction], direction === TypeDirection.ROW ? row_count : column_count).slice(0);
-                const set = new Set(combinations.flatMap(cs => cs.map(c => c)));
-                play.value = Array.from(set);
-                // add to the queue
-                if (play.value.length > 0) {
-                  plays.enqueue(play, play.value.length);
-                }
-            })
+              const play = calculate_cell_combinations(board, types, {i, j, value: []});
+              if (play.value.length > 0) {
+                plays.enqueue(play, play.value.length);
+              }
         }
       }
     }
@@ -81,10 +72,14 @@ export const  SearchPlay = (board: Array<Array<any>>, types: Array<Array<TypeCel
     return false;
 }
 
-const calculate_cell_combinations = (board: Array<Array<any>>, types: Array<Array<TypeCell>>, play: PossibleAction,combinations: number[][], used_numbers: string) =>{
-    const [i, j, direction] = [play.i, play.j, play.direction];
-    const set = new Set(combinations.flatMap(cs => cs.map(c => c)));
-    play.value = Array.from(set);
+const calculate_cell_combinations = (board: Array<Array<any>>, types: Array<Array<TypeCell>>, play: PossibleAction): PossibleAction =>{
+    const [i, j] = [play.i, play.j];
+    const [r_distance, c_distance] = getStackCellDistance(types, i, j);
+
+    // const combinations = get_combinations(board[i][j][0], direction === TypeDirection.ROW ? r_distance : c_distance).slice(0);
+    // const set = new Set(combinations.flatMap(cs => cs.map(c => c)));
+    // play.value = Array.from(set);
+    return play;
 }
 
 
@@ -97,7 +92,7 @@ export const  BruteForcePlay = (board: Array<Array<any>>, types: Array<Array<Typ
         for (let i = 0; i < r; i++) {
             for (let j = 0; j < c; j++) { 
                 if (types[i][j] !== TypeCell.STACK) continue
-                const [row_count, column_count] = getNumberOfInpuCells(board, types, i, j);
+                const [row_count, column_count] = getNumberOfInputCells(board, types, i, j);
                 stack_cells.set(`${i},${j}`,{i, j, row_permutations: get_permutaions(board[i][j][0], row_count).slice(0), col_permutations: get_permutaions(board[i][j][1], column_count).slice(0)});
             }
         }
@@ -130,7 +125,7 @@ const clean_permutation = (board: any[][], types: TypeCell[][], stack_cells: Map
     for (let i = 0; i < r; i++) {
         for (let j = 0; j < c; j++) {
             if( types[i][j] !== TypeCell.INPUT) continue;
-            const [row_count, column_count] = getStackCells(types, i, j);
+            const [row_count, column_count] = getStackCellDistance(types, i, j);
             const row_key = `${i},${j-column_count}`;
             const col_key = `${i-row_count},${j}`;
             // console.log("position", `${i},${j}`, "row", row_key, "col", col_key );
@@ -169,24 +164,27 @@ const matcher = (row_stack_cell: any, column_stack_cell: any, i:  number,j: numb
     }
 
 }
-
-const getNumberOfInpuCells = (board: Array<Array<any>>, types: Array<Array<TypeCell>>,i: number, j : number): [number, number] => {
+// 
+const getNumberOfInputCells = (board: Array<Array<any>>, types: Array<Array<TypeCell>>,i: number, j : number): [number, number, any[], any[]] => {
     const [r, c] = [board.length, board[0].length];
     let [row_count, column_count] = [0, 0];
     let [ii, jj] = [i+1, j+1];
+    let [rvalues, cvalues]: [Array<any>, Array<any>] = [[], []];
     while(ii < r && types[ii][j] === TypeCell.INPUT ){
         column_count++;
+        cvalues.push(board[ii][j]);
         ii++;
     }
     // Get the numbers of the column
     while(jj < c && types[i][jj] === TypeCell.INPUT ){
         row_count++;
+        rvalues.push(board[i][jj]);
         jj++;
     }
-    return [row_count, column_count];
+    return [row_count, column_count, rvalues, cvalues];
 }
 
-const getStackCells = (types: Array<Array<TypeCell>>, i: number, j: number): Array<any> => {
+const getStackCellDistance = (types: Array<Array<TypeCell>>, i: number, j: number): Array<any> => {
     // To de column that means whe
     let [row_count, column_count] = [0, 0];
     let [di, dj] = [i, j];

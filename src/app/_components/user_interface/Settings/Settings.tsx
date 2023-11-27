@@ -1,21 +1,22 @@
-import {
-  ArrowPathIcon,
-  ChartPieIcon,
-  CursorArrowRaysIcon,
-  FingerPrintIcon,
-  SquaresPlusIcon,
-} from '@heroicons/react/24/outline'
 import FileUploader from './FileUploader'
 import { useReducer, useState } from 'react'
 import { SettingsProps } from './SettingsProps';
+// import {
+//   ArrowPathIcon,
+//   ChartPieIcon,
+//   CursorArrowRaysIcon,
+//   FingerPrintIcon,
+//   SquaresPlusIcon,
+// } from '@heroicons/react/24/outline'
 
-const settings = [
-  { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
-  { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
-  { name: 'Security', description: "Your customers' data will be safe and secure", href: '#', icon: FingerPrintIcon },
-  { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
-  { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
-]
+
+// const settings = [
+//   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
+//   { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
+//   { name: 'Security', description: "Your customers' data will be safe and secure", href: '#', icon: FingerPrintIcon },
+//   { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
+//   { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
+// ]
 export default function Settings(props: SettingsProps) {
   const [toggle, setToggle] = useState(false);
   
@@ -72,33 +73,38 @@ const Menu = ({play, setBoard, setBoardFromFile}: SettingsProps) => {
     <div className='bg-sky-100 dark:bg-sky-950 p-5 my-2 rounded-lg'>
     <section className=''>
       <h1 className='text-2xl font-[Arial] font-bold'>Create board</h1>
-      <div>
-       <h2>Generate Board</h2>
-       <div>
-        <NumberInput value={rows} setValue={setRows} name="Rows" />
-       </div>
-       <div>
-        <NumberInput value={columns} setValue={setColumns} name="Columns" />
-       </div>
-       <button onClick={ () => setBoard(rows,columns)}className=" p-4 m-5 bg-sky-400 rounded-full">
-        Generate Board
-      </button>
-
+      <div className='flex flex-col'>
+        <h2 className='font-semibold'>Generate Board</h2>
+        <div>
+          <NumberInput value={rows} setValue={setRows} name="Rows" />
+        </div>
+        <div>
+          <NumberInput value={columns} setValue={setColumns} name="Columns" />
+        </div>
+        <button onClick={ () => setBoard(rows,columns)} className=" p-3 m-2 bg-sky-400 rounded-full font-bold w-max self-center">
+          Generate Board
+        </button>
+        <p className='italic text-sky-500 text-xs'>The board will generate a 3 dimension <br/> if the value of the row or column is 0</p>
       </div>
-      <FileUploader setBoardFromFile={setBoardFromFile} />
+      <div>
+        <h2 className='font-semibold'>Upload Board</h2>
+        <FileUploader setBoardFromFile={setBoardFromFile} />
+      </div>
       
     </section>
     <section>
       <h1 className='text-2xl font-[Arial] font-bold'>Machine Player</h1>
-      <button className=" p-4 m-5 bg-sky-400 rounded-full" onClick={() => {play("")}}>
-        BruteForce
+      <button className=" p-2 m-3 bg-sky-400 rounded-full font-bold" onClick={() => {play("")}}>
+        Brute Force
       </button>
-      <button className=" p-4 m-5 bg-sky-400 rounded-full" onClick={() => {play("")}}>
-        Play
+      <button className=" p-2 m-3 bg-sky-400 rounded-full font-bold" onClick={() => {play("")}}>
+        Search Algorithm
       </button>
-      <button className=" p-4 m-5 bg-sky-400 rounded-full" >
+      <p className='italic text-sky-500 text-xs'>reload the page if it takes too much time<br/>{"Search doesn't update the ui"} </p>
+
+      {/* <button className=" p-4 m-5 bg-sky-400 rounded-full" >
         Stop
-      </button>
+      </button> */}
     </section>
    </div>
   )
@@ -107,7 +113,7 @@ const Menu = ({play, setBoard, setBoardFromFile}: SettingsProps) => {
 
 const NumberInput = ({name, value, setValue}: any) => {
   return (
-    <section className='flex  justify-between items-center'>
+    <section className='flex  justify-between items-center p-0.5'>
       <h1>{name}</h1>
       <div className="py-2 px-3 inline-block bg-white border border-sky-200 rounded-lg dark:bg-slate-900 dark:border-sky-700" data-hs-input-number><div className="flex items-center gap-x-1.5">
         <button type="button" onClick={() => setValue({ type: 'DECREMENT' })} className="w-6 h-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-sky-200 bg-white text-sky-800 shadow-sm hover:bg-sky-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-sky-700 dark:text-white dark:hover:bg-sky-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-sky-600">

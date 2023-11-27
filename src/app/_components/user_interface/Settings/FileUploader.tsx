@@ -12,8 +12,8 @@ const FileUploader = ({setBoardFromFile}: any) => {
   };
 
   return (
-    <section>
-      <div role='button' className='m-5 p-3 bg-sky-400 rounded-full'>
+    <section className='flex flex-col'>
+      <div role='button' className='m-2 p-3 bg-sky-400 rounded-full w-max font-bold self-center'>
         <label htmlFor="file">Upload a board</label>
         <input className='hidden' id="file" name="file" type="file" accept=".txt" onChange={handleFileUpload} />
       </div>

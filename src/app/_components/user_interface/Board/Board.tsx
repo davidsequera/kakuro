@@ -72,6 +72,7 @@ export const Board = ({r, c}: any) => {
   }
   // For settings component
   const setBoard = (r: number, c: number) => {
+    setGame(undefined)
     setGame(new GameBoard(r, c))
   }
   // For settings component
