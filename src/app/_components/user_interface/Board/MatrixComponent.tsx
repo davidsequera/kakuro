@@ -1,10 +1,47 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { TypeCell } from '../../game_interface/TypeCell'
 import { CellInput } from '../CellComponets/CellInput'
 import { CellBlocked } from '../CellComponets/CellBlocked'
 import { CellStack } from '../CellComponets/CellStack'
+import { Subscription, fromEvent } from 'rxjs'
 
 export default function MatrixComponent({game, selectedCell, setSelectedCell}: any) {
+
+    // listen keydown
+    useEffect(() => {
+        const subscription = listenKey()
+        return () => {
+        // console.log("unsubscribe")
+        subscription.unsubscribe()
+        }
+    })
+
+    useEffect(() => {}, [game])
+
+
+    const listenKey = (): Subscription =>{
+        const keydown = fromEvent(document, 'keydown')
+        // console.log("listen", game, selectedCell)
+        return keydown.subscribe(handleKeyDown)
+      }
+      
+      const handleKeyDown = (e: any ) => {
+        const key = e.key as string
+          const regex = RegExp('[0-9]')
+          // console.log("key", key, selectedCell)
+          if (game && selectedCell) {
+            if (key === 'Backspace') {
+              game.setCell(selectedCell.i, selectedCell.j, 0)
+              return
+            }
+            if (regex.test(key)) {
+              game.setCell(selectedCell.i, selectedCell.j, parseInt(key))
+            }
+        }
+      }
+    
+    
+    
     const pickCell = (i: number, j: number) => {
         if(selectedCell?.i == i && selectedCell?.j == j){
           setSelectedCell(undefined)

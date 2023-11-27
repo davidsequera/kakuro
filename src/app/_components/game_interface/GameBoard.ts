@@ -1,11 +1,16 @@
 import { Observer, Subject, map, merge } from "rxjs";
 import { TypeCell, cell, cellValue } from "./TypeCell";
-import { createBoard, createSimpleBoard } from "./CreateBoard";
+import { createBoard, createBoardFromFile, createSimpleBoard } from "./CreateBoard";
+import { create } from "domain";
 
 export class GameBoard {
+    private MIN = 3
     private _board: Array<Array<any>> = [];
     private _types: Array<Array<TypeCell>> = [];
     private _solution: Array<Array<number>> = [];
+    private _r: number = 0;
+    private _c: number = 0;
+    private _file_string?: string;
 
     // Subjects
     private _subjects: Array<Array<Subject<cell> | [Subject<cell>, Subject<cell> ]>> = [];
@@ -16,19 +21,31 @@ export class GameBoard {
     private _stackCells_state: Map<string, boolean> = new Map<string, boolean>();
     
 
-    constructor(private _r: number, private _c: number) {
-        this._initBoard(_r, _c);
+    constructor(_r?: number, _c?: number, _file_string?: string){
+        this.createNew(_r, _c, _file_string);
+    }
+
+    createNew(_r?: number, _c?: number, _file_string?: string): GameBoard {
+        this._initBoard(_r, _c, _file_string);
         this.saveSolution();
         this.cleanBoard();
         this.setInputCellsSubscriptions();
         this.setJudgeSubsctiption();
+        return this;
     }
 
-    private _initBoard(r: number, c: number): void {
-        if ( r < 5 && c < 5) {
-            [this._board, this._types] = createSimpleBoard(r, c);
+    // Defines the way the board is created
+    private _initBoard(r?: number, c?: number, _file_string?: string): void {
+        this._r = r || this.MIN;
+        this._c = c || this.MIN;
+        this._file_string = _file_string;
+        if (this._file_string) {
+            [this._r, this._c, this._board, this._types] = createBoardFromFile(this._file_string);
+        }
+        else if ( this._r < 5 && this._c < 5 && this._r > 0 && this._c > 0) {
+            [this._board, this._types] = createSimpleBoard(this._r, this._c );
         }else{
-            [this._board, this._types] = createBoard(r, c);
+            [this._board, this._types] = createBoard(this._r,this._c );
         }
     }
 

@@ -50,40 +50,32 @@ export const createBoard = (r: number, c: number): [Array<Array<any>>, Array<Arr
 }
 
 
-export const createBoardFromFile = (fileContent: string): [Array<Array<any>>, Array<Array<TypeCell>>] => {
+export const createBoardFromFile = (fileContent: string): [r: number, c: number, Array<Array<any>>, Array<Array<TypeCell>>] => {
     try{
         const lines = fileContent.split('\n');
         const [c,r] = lines[0].split(' ').map(Number);
-        const board: Array<Array<any>> = [];
-        const types: Array<Array<TypeCell>> = [];
+        const board: Array<Array<any>> = createMatrix(r, c, 0);
+        const types: Array<Array<TypeCell>> = createMatrix(r, c, TypeCell.INPUT);
     
-        for (let i = 0; i < r; i++) {
-            board[i] = [];
-            types[i] = [];
-        }
-    
-        for (let i = 0; i < r; i++) {
-            for (let j = 0; j < c; j++) {    
-                board[i][j] = 0;
-                types[i][j] = TypeCell.INPUT;        
-            }
-        }
+
         for (let u = 1; u < lines.length; u++) {
-            const [i,j, v1,v2] = lines[u].split(' ').map(Number);
+            let [i,j, v1,v2] = lines[u].split(' ').map(Number);
             if(v1 === -1 && v2 === -1){
                 types[i][j] = TypeCell.BLOCKED;
             }else{
+                v1 = v1 === -1 ? 0 : v1;
+                v2 = v2 === -1 ? 0 : v2;
                 types[i][j] = TypeCell.STACK;
-                board[i][j] = [v1,v2];            
+                board[i][j] = [v2,v1];            
             }
         }
     
     
-        return [board, types];
+        return [r,c, board, types];
 
     }catch(e){
         console.error(e);
-        return createSimpleBoard(4,4);
+        return [4,4, ...createSimpleBoard(4,4)]
     }
 
 }

@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline'
 import FileUploader from './FileUploader'
 import { useState } from 'react'
+import { SettingsProps } from './SettingsProps';
 
 const settings = [
   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
@@ -15,7 +16,7 @@ const settings = [
   { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
   { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
 ]
-export default function Settings({play}: any) {
+export default function Settings(props: SettingsProps) {
   const [toggle, setToggle] = useState(false);
 
   const handleToggle = () => {
@@ -36,7 +37,7 @@ export default function Settings({play}: any) {
           toggle ? 'max-h-screen' : ''
         }`}
       >
-        <Menu play={play}/>
+        <Menu {...props} />
 
       </section>
     </section>
@@ -45,7 +46,7 @@ export default function Settings({play}: any) {
 }
 
 
-const Menu = ({play}: any) => {
+const Menu = ({play, setBoard, setBoardFromFile}: SettingsProps) => {
   return (
     <div className='bg-sky-100 dark:bg-sky-950 p-5 my-2 rounded-lg'>
     <section className=''>
@@ -63,15 +64,15 @@ const Menu = ({play}: any) => {
       </button>
 
       </div>
-      <FileUploader />
+      <FileUploader setBoardFromFile={setBoardFromFile} />
       
     </section>
     <section>
       <h1 className='text-2xl font-[Arial] font-bold'>Machine Player</h1>
-      <button className=" p-4 m-5 bg-sky-400 rounded-full" onClick={play}>
+      <button className=" p-4 m-5 bg-sky-400 rounded-full" onClick={() => {play("")}}>
         BruteForce
       </button>
-      <button className=" p-4 m-5 bg-sky-400 rounded-full" onClick={play}>
+      <button className=" p-4 m-5 bg-sky-400 rounded-full" onClick={() => {play("")}}>
         Play
       </button>
       <button className=" p-4 m-5 bg-sky-400 rounded-full" >

@@ -16,3 +16,8 @@ export type StateMessage = Message & {
     types: Array<Array<TypeCell>>
 }
 
+
+export type PlayMessage = Message & {
+    mode: string
+    tries: number
+}

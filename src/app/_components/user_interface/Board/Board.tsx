@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { GameBoard } from '../../game_interface/GameBoard'
 import { cell } from '../../game_interface/TypeCell'
-import { Subscription, fromEvent } from 'rxjs'
 import { action } from '../../player/Actions'
 import { StateMessage } from '../../player/Message'
 import Settings from '../Settings/Settings'
@@ -23,14 +22,7 @@ export const Board = ({r, c}: any) => {
     }
   }, [r, c])
   
-  // listen keydown
-  useEffect(() => {
-    const subscription = listenKey()
-    return () => {
-      // console.log("unsubscribe")
-      subscription.unsubscribe()
-    }
-  })
+
 
   // create obserber and listen win
   useEffect(() => {
@@ -49,26 +41,7 @@ export const Board = ({r, c}: any) => {
     }
   })
     
-  function listenKey(): Subscription{
-    const keydown = fromEvent(document, 'keydown')
-    // console.log("listen", game, selectedCell)
-    return keydown.subscribe(handleKeyDown)
-  }
-  
-  const handleKeyDown = (e: any ) => {
-    const key = e.key as string
-      const regex = RegExp('[0-9]')
-      // console.log("key", key, selectedCell)
-      if (game && selectedCell) {
-        if (key === 'Backspace') {
-          game.setCell(selectedCell.i, selectedCell.j, 0)
-          return
-        }
-        if (regex.test(key)) {
-          game.setCell(selectedCell.i, selectedCell.j, parseInt(key))
-        }
-    }
-  }
+
 
 
   // machine player
@@ -97,8 +70,19 @@ export const Board = ({r, c}: any) => {
       console.log("no worker")
     }
   }
-
-
+  // For settings component
+  const setBoard = (r: number, c: number) => {
+    setGame(new GameBoard(r, c))
+  }
+  // For settings component
+  const setBoardFromFile = (file: File) => {
+    const reader: FileReader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setGame(new GameBoard(0,0,content))
+    };
+    reader.readAsText(file);
+  }
 
 
   return (
@@ -110,7 +94,7 @@ export const Board = ({r, c}: any) => {
       }
       {win && <h1 className="text-2xl m-2 italic font-sans text-sky-500 self-center hover:text-white cursor-pointer">You win!</h1>}
     </div>
-    {game && <Settings  play={machinePlayer}/>}
+    {game && <Settings pause={() => {console.log("TODO")}} setBoard={setBoard} setBoardFromFile={setBoardFromFile}  play={machinePlayer}/>}
     {/* <Image className='self-center' src="/bunny.gif" alt="logo" width={384/1.5} height={480/1.5} priority={false} /> */}
     </>
   )
