@@ -26,3 +26,29 @@ export function findPermutations(target: number, permutationLength: number): num
 
     return result;
 }
+
+
+export function findCombinations(targetSum: number, numElements: number): number[][] {
+    const results: number[][] = [];
+
+    function backtrack(start: number, currentSum: number, combination: number[]): void {
+        if (currentSum === targetSum && combination.length === numElements) {
+            results.push([...combination]);
+            return;
+        }
+
+        if (currentSum > targetSum || combination.length > numElements) {
+            return;
+        }
+
+        for (let i = start; i <= 9; i++) {
+            combination.push(i);
+            backtrack(i + 1, currentSum + i, combination);
+            combination.pop();
+        }
+    }
+
+    backtrack(1, 0, []);
+
+    return results;
+}

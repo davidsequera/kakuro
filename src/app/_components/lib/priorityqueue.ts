@@ -1,9 +1,9 @@
-interface QueueNode<T> {
+export interface QueueNode<T> {
     element: T;
     priority: number;
   }
   
-  class MinHeap<T> {
+export class MinHeap<T> {
     private heap: QueueNode<T>[];
   
     constructor() {
@@ -92,16 +92,9 @@ interface QueueNode<T> {
     print(): void {
       console.log(this.heap);
     }
-  }
-  
-  // Example usage:
-  const priorityQueue = new MinHeap<string>();
-  priorityQueue.enqueue('Task 1', 2);
-  priorityQueue.enqueue('Task 2', 1);
-  priorityQueue.enqueue('Task 3', 3);
-  priorityQueue.enqueue('Task 4', 2);
-  
-  priorityQueue.print(); // Output: [{element: "Task 2", priority: 1}, {element: "Task 4", priority: 2}, {element: "Task 3", priority: 3}, {element: "Task 1", priority: 2}]
-  
-  console.log(priorityQueue.dequeue()); // Output: {element: "Task 2", priority: 1}
+
+    get length(): number {
+        return this.heap.length;
+    }
+}
   

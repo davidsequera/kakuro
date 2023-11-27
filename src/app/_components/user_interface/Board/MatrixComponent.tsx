@@ -15,10 +15,6 @@ export default function MatrixComponent({game, selectedCell, setSelectedCell}: a
         subscription.unsubscribe()
         }
     })
-
-    useEffect(() => {}, [game])
-
-
     const listenKey = (): Subscription =>{
         const keydown = fromEvent(document, 'keydown')
         // console.log("listen", game, selectedCell)
